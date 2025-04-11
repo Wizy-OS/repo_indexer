@@ -1,0 +1,17 @@
+name: repo-indexer
+version: 0.1.0
+
+authors:
+  - your-name-here <your-email-here>
+
+targets:
+  repo-indexer:
+    main: src/repo-indexer.cr
+
+dependencies:
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
+
+crystal: '>= 1.15.1'
+
+license: MIT
