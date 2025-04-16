@@ -65,6 +65,7 @@ def add_package(file : String)
   version = props["version"].to_s
   maintainer = props["maintainer"].to_s
   description = props["description"].to_s
+  deps = props["deps"]
 
   # read files_list from tar
   p = Process.new("bsdtar", ["-xf", file, "-O", "files"], output: Process::Redirect::Pipe)
@@ -92,12 +93,20 @@ def add_package(file : String)
         file_path
       )
     end
+
+    deps.as_a.each do |dep_name|
+      db.exec("INSERT INTO dependencies VALUES (?, ? ,?)",
+        nil, # auto id
+        pkg_id,
+        dep_name.as_s
+      )
+    end
   end
 end
 
 # add tars metadata in a directory to database
 def add_dir
-  # Delete previous data from all tables # TODO
+  # Delete previous data from all tables
   DB.open "sqlite3://./#{Global.db}" do |db|
     db.exec("DELETE from packages")
     db.exec ("DELETE from sqlite_sequence where name='packages'")
