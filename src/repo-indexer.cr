@@ -66,14 +66,32 @@ def add_package(file : String)
   maintainer = props["maintainer"].to_s
   description = props["description"].to_s
 
+  # read files_list from tar
+  p = Process.new("bsdtar", ["-xf", file, "-O", "files"], output: Process::Redirect::Pipe)
+  files_str = p.output.gets_to_end
+  p.wait
+
+  files_list = files_str.split("\n")
+
   DB.open "sqlite3://./#{Global.db}" do |db|
     db.exec("INSERT INTO packages VALUES (?, ?, ?, ?, ?)",
-            nil, # auto id
-            name,
-            version,
-            maintainer,
-            description
+      nil, # auto id
+      name,
+      version,
+      maintainer,
+      description
     )
+
+    pkg_id = db.scalar "select pkgId from packages where name='#{name}'"
+    raise "pkg_id must be integer" if pkg_id.is_a?(String)
+
+    files_list.each do |file_path|
+      db.exec("INSERT INTO files VALUES (?, ? ,?)",
+        nil, # auto id
+        pkg_id,
+        file_path
+      )
+    end
   end
 end
 
@@ -83,12 +101,16 @@ def add_dir
   DB.open "sqlite3://./#{Global.db}" do |db|
     db.exec("DELETE from packages")
     db.exec ("DELETE from sqlite_sequence where name='packages'")
+    db.exec("DELETE from files")
+    db.exec ("DELETE from sqlite_sequence where name='files'")
+    db.exec("DELETE from dependencies")
+    db.exec ("DELETE from sqlite_sequence where name='dependencies'")
   end
 
-  files_list = Dir.glob("*.wpkg.tar.zstd")
-  files_list.each do |file|
-    puts "adding #{file} to repository"
-    add_package(file)
+  pkg_list = Dir.glob("*.wpkg.tar.zstd")
+  pkg_list.each do |pkg_name|
+    puts "adding #{pkg_name} to repository"
+    add_package(pkg_name)
   end
 end
 
