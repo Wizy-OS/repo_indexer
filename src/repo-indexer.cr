@@ -74,14 +74,15 @@ def add_package(file : String)
   p.wait
 
   files_list = files_str.split("\n")
-
+  is_installed = 0
   DB.open "sqlite3://./#{Global.db}" do |db|
-    db.exec("INSERT INTO packages VALUES (?, ?, ?, ?, ?)",
+    db.exec("INSERT INTO packages VALUES (?, ?, ?, ?, ?, ?)",
       nil, # auto id
       name,
       version,
       maintainer,
-      description
+      description,
+      is_installed
     )
 
     pkg_id = db.scalar "select pkgId from packages where name='#{name}'"
