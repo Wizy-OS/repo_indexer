@@ -35,7 +35,8 @@ def create_schema
     name TEXT NOT NULL UNIQUE,\
     version TEXT NOT NULL,\
     maintainer TEXT NOT NULL,\
-    description TEXT\
+    description TEXT,\
+    is_installed BOOLEAN\
     )"
 
     db.exec "CREATE TABLE files(\
