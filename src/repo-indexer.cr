@@ -26,6 +26,7 @@ end
 
 # create repo schema in database
 def create_schema
+  puts "Creating new schema"
   DB.open "sqlite3://./#{Global.db}" do |db|
     db.exec "CREATE TABLE wiz(format_version TEXT)"
     db.exec "INSERT INTO wiz VALUES(?)", "1"
@@ -36,7 +37,7 @@ def create_schema
     version TEXT NOT NULL,\
     maintainer TEXT NOT NULL,\
     description TEXT,\
-    is_installed BOOLEAN\
+    is_installed INTEGER\
     )"
 
     db.exec "CREATE TABLE files(\
