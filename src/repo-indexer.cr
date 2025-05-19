@@ -77,6 +77,8 @@ def add_package(file : String)
   files_list = files_str.split("\n")
   is_installed = 0
   DB.open "sqlite3://./#{Global.db}" do |db|
+    db.exec("BEGIN TRANSACTION")
+
     db.exec("INSERT INTO packages VALUES (?, ?, ?, ?, ?, ?)",
       nil, # auto id
       name,
@@ -104,6 +106,8 @@ def add_package(file : String)
         dep_name.as_s
       )
     end
+
+    db.exec("COMMIT")
   end
 end
 
